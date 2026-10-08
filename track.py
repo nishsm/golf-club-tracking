@@ -34,8 +34,8 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--video", required=True)
     p.add_argument("--out", default=None, help="output .mp4 (default: out/<name>_<mode>.mp4)")
-    p.add_argument("--mode", choices=["boxes", "path", "compare"], default="path",
-                   help="boxes: detections only; path: smoothed head path; compare: raw (yellow) vs smoothed (green)")
+    p.add_argument("--mode", choices=["boxes", "path", "both", "compare"], default="both",
+                   help="boxes: detections only; path: smoothed head path; both: boxes + path; compare: raw (yellow) vs smoothed (green)")
     p.add_argument("--backend", choices=["local", "roboflow"], default="local")
     p.add_argument("--weights", default="weights/best.pt")
     p.add_argument("--device", default=None, help="cpu, 0 (CUDA), or mps")
@@ -85,14 +85,14 @@ def main() -> None:
     # Pass 2: draw.
     for i, img in enumerate(images):
         frame = img.copy()
-        if a.mode == "boxes":
+        if a.mode in ("boxes", "both"):
             for (x1, y1, x2, y2), cid, conf in dets_per_frame[i]:
                 if conf >= a.conf and cid in CLASS_STYLE:
                     label, color = CLASS_STYLE[cid]
                     cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                     cv2.putText(frame, f"{label} {conf:.2f}", (x1, max(0, y1 - 8)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-        else:
+        if a.mode != "boxes":
             if a.mode == "compare":
                 pts = [raw[f] for f in sorted(raw) if f <= i]
                 for p0, p1 in zip(pts, pts[1:]):

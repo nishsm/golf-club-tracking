@@ -74,7 +74,7 @@ git clone https://github.com/nishsm/golf-club-tracking.git
 cd golf-club-tracking
 pip install -r requirements.txt
 
-# swing path, using the included weights (CPU, CUDA, or --device mps on Apple silicon)
+# boxes + swing path, using the included weights (CPU, CUDA, or --device mps on Apple silicon)
 python track.py --video path/to/swing.mp4
 
 # raw detections (yellow) vs the interpolated + smoothed path (green)
@@ -82,6 +82,9 @@ python track.py --video path/to/swing.mp4 --mode compare
 
 # just the boxes
 python track.py --video path/to/swing.mp4 --mode boxes
+
+# just the path
+python track.py --video path/to/swing.mp4 --mode path
 ```
 
 Output goes to `out/<video>_<mode>.mp4`, and the script prints how many frames had a direct head detection and how many were filled in from the shaft.
