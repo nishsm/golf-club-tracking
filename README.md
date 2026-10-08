@@ -3,7 +3,6 @@
 <p align="center"><b>Open-source golf swing tracer. Drop in any phone video, get the club path.</b></p>
 
 <p align="center">
-  <a href="https://huggingface.co/spaces/nishsm/swingtrace"><img src="https://img.shields.io/badge/🤗%20Demo-Try%20it%20live-yellow" alt="Live demo"></a>
   <a href="https://huggingface.co/nishsm/swingtrace"><img src="https://img.shields.io/badge/🤗%20Model-YOLO11m-orange" alt="Model on Hugging Face"></a>
   <a href="https://colab.research.google.com/github/nishsm/swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a>
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0">
@@ -24,7 +23,7 @@ SwingTrace finds the **club shaft, club head and hands** in every frame and rebu
 
 ## 🚀 Try it in 10 seconds
 
-**In your browser:** upload a swing on the [live demo](https://huggingface.co/spaces/nishsm/swingtrace). No install needed.
+**In your browser:** open the [Colab notebook](https://colab.research.google.com/github/nishsm/swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb), upload a swing, press run. Free GPU, nothing to install.
 
 **On your machine:**
 

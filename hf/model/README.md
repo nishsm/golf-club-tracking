@@ -18,7 +18,7 @@ tags:
 
 Detects the **club shaft, club head and hands** in golf swing videos. Used by [SwingTrace](https://github.com/nishsm/swingtrace) to rebuild the club-head path through the whole swing, including the blurry frames at the top and at impact.
 
-**Try it:** [live demo](https://huggingface.co/spaces/nishsm/swingtrace) · **Code:** [github.com/nishsm/swingtrace](https://github.com/nishsm/swingtrace)
+**Try it:** [Colab notebook](https://colab.research.google.com/github/nishsm/swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb) · **Code:** [github.com/nishsm/swingtrace](https://github.com/nishsm/swingtrace)
 
 ## Use it
 
