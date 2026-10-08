@@ -13,3 +13,6 @@ data/
 *.mov
 yolo11*.pt
 yolov8*.pt
+*.egg-info/
+build/
+dist/

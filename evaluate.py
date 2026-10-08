@@ -19,7 +19,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from golfclub.detect import HEAD, SHAFT, local_frames  # noqa: E402
+from swingtrace.detect import HEAD, SHAFT, local_frames  # noqa: E402
+from swingtrace.weights import resolve_weights  # noqa: E402
 
 VIDEO_EXT = {".mp4", ".mov", ".avi", ".mkv"}
 
@@ -55,7 +56,7 @@ def eval_video(path: Path, weights: str, conf: float, device: str | None) -> dic
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--videos", required=True, help="folder of swing videos (not used in training)")
-    p.add_argument("--weights", default="weights/best.pt")
+    p.add_argument("--weights", default=None, help="local .pt; default downloads from Hugging Face")
     p.add_argument("--conf", type=float, default=0.5)
     p.add_argument("--device", default=None)
     p.add_argument("--out", default="results/video_eval.csv")
@@ -66,7 +67,7 @@ def main() -> None:
         raise SystemExit(f"no videos in {a.videos}")
     rows = []
     for v in vids:
-        r = eval_video(v, a.weights, a.conf, a.device)
+        r = eval_video(v, resolve_weights(a.weights), a.conf, a.device)
         rows.append(r)
         print(f"{r['video'][:40]:40s} frames {r['frames']:4d}  head {r['head_pct']:5.1f}%  "
               f"head|shaft {r['head_or_shaft_pct']:5.1f}%  longest head gap {r['longest_head_gap']}")

@@ -1,42 +1,72 @@
-# Golf Club Tracking
+<h1 align="center">⛳ SwingTrace</h1>
 
-Detects the golf club shaft, club head and hands in swing videos and draws the club-head swing path, even through the frames where the head blurs out and the detector loses it. On 7 unseen phone videos, the head or shaft is found in **93% of frames**.
-
-An open-source project I built to analyse golf swings from ordinary phone video. Free to use: weights, code and evaluation are all here.
+<p align="center"><b>Open-source golf swing tracer. Drop in any phone video, get the club path.</b></p>
 
 <p align="center">
-  <img src="assets/modes_grid.gif" width="420" alt="The four output modes on one swing: boxes, path, both, compare">
+  <a href="https://huggingface.co/spaces/nishsm/swingtrace"><img src="https://img.shields.io/badge/🤗%20Demo-Try%20it%20live-yellow" alt="Live demo"></a>
+  <a href="https://huggingface.co/nishsm/swingtrace"><img src="https://img.shields.io/badge/🤗%20Model-YOLO11m-orange" alt="Model on Hugging Face"></a>
+  <a href="https://colab.research.google.com/github/nishsm/swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a>
+  <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0">
+  <img src="https://img.shields.io/badge/python-3.9%2B-informational" alt="Python 3.9+">
 </p>
-<p align="center"><sub>One swing, four modes: <b>boxes</b> (shaft, head, hands) · <b>path</b> (reconstructed club-head path) · <b>both</b> · <b>compare</b> (raw detections in yellow vs smoothed path in green). Face blurred for privacy.</sub></p>
 
-## Results
+<p align="center">
+  <img src="assets/modes_grid.gif" width="440" alt="The four output modes on one swing: boxes, path, both, compare">
+</p>
+<p align="center"><sub><b>boxes</b> shaft, head and hands · <b>path</b> reconstructed club-head path · <b>both</b> · <b>compare</b> raw detections (yellow) vs smoothed path (green). Face blurred for privacy.</sub></p>
 
-| Model | Input | Precision | Recall | mAP@50 | mAP@50-95 |
-|---|---|---|---|---|---|
-| YOLO11m (fine-tuned) | 640 px | 0.930 | 0.849 | **0.918** | **0.674** |
+SwingTrace finds the **club shaft, club head and hands** in every frame and rebuilds the **club-head path through the whole swing**, including the top of the backswing and impact, where the head turns into a blur and normal detectors lose it.
 
-Validation metrics at the best epoch (456 of 556; training stopped early with patience 100). About 48 hours of training on a laptop RTX 4060 (8 GB), using batch size 2 and mixed precision to fit in memory.
+- 🎯 **Tracks the club in 93% of frames** on phone videos it has never seen ([how this is measured](#-how-good-is-it))
+- 📱 **One phone camera.** No sensors, no launch monitor, no markers.
+- ⚡ **Runs on a laptop.** CPU, NVIDIA GPU or Apple silicon (`--device mps`).
+- 🆓 **Free and open:** the weights, the code, the training setup and the evaluation are all here.
 
-![Training curves](assets/training_curves.png)
+## 🚀 Try it in 10 seconds
 
-The full per-epoch history is in [`results/training_history.json`](results/training_history.json).
+**In your browser:** upload a swing on the [live demo](https://huggingface.co/spaces/nishsm/swingtrace). No install needed.
 
-### How solid is 0.918?
-
-Treat the validation number as an upper bound. The dataset is made of frames pulled from swing videos and split at random, so most validation frames have a near-identical neighbour in the training set. In the local copy of the dataset, **91% of validation frames have a training frame within 2 frame numbers**, and 98% have one within 5. A score on those frames mostly measures how well the model handles footage like what it already saw.
-
-The fair test is whole swing videos the model never trained on. [`evaluate.py`](evaluate.py) measures how often the head (and the head or shaft) is found in each video, and the longest gap the spline has to bridge:
+**On your machine:**
 
 ```bash
-python evaluate.py --videos path/to/unseen_swings --device mps
+pip install git+https://github.com/nishsm/swingtrace.git
+swingtrace my_swing.mp4                # boxes + club path → out/my_swing_both.mp4
+swingtrace my_swing.mp4 --mode all     # all four modes
 ```
 
-**Result on 7 unseen phone videos (3,018 frames, conf 0.5):**
+The model weights (40 MB) download automatically from [Hugging Face](https://huggingface.co/nishsm/swingtrace) the first time you run it.
+
+**From Python:**
+
+```python
+import swingtrace
+
+result = swingtrace.track("my_swing.mp4", mode="path", device="mps")
+print(result.summary())   # frames with a head detection, frames filled from the shaft, path length
+```
+
+### Modes
+
+| Mode | What you get |
+|---|---|
+| `both` (default) | Boxes for shaft, head and hands, plus the club-head path |
+| `path` | Just the smoothed club-head path |
+| `boxes` | Just the detections |
+| `compare` | Raw detections (yellow) next to the smoothed path (green), to see what the reconstruction adds |
+
+Tips for best results: one golfer, a full swing, a phone on a tripod or held still, filmed face-on or from behind the golfer.
+
+## 📊 How good is it?
+
+**On 7 unseen phone videos (3,018 frames):**
 
 | | Share of frames |
 |---|---|
 | Club head detected directly | **71.6%** |
-| Head **or** shaft detected (so the head can be recovered from the shaft) | **93.4%** |
+| Head **or** shaft detected, so the head can be recovered from the shaft | **93.4%** |
+
+<details>
+<summary>Per-video results and caveats</summary>
 
 | Video | Frames | Head | Head or shaft | Longest head gap (frames) |
 |---|---|---|---|---|
@@ -48,9 +78,24 @@ python evaluate.py --videos path/to/unseen_swings --device mps
 | Simulator bay | 391 | 71.4% | 84.1% | 40 |
 | Outdoor, backlit | 311 | 77.2% | 92.9% | 20 |
 
-These are real phone recordings of golf swings, and none of them are in the training dataset. The gap between the first two numbers is why the shaft fallback matters: the head alone is missing in more than a quarter of frames, but the shaft covers most of those. \*In the indoor studio video, the model also boxes a ceiling light as a shaft, so its head-or-shaft figure is inflated. One more caveat: "detected" means a box above the confidence threshold. These videos have no hand labels, so the count includes the occasional false positive. Per-video numbers are in [`results/video_eval.csv`](results/video_eval.csv).
+\*The model also boxes a ceiling light as a shaft in this video, so its head-or-shaft figure is inflated. "Detected" means a box above confidence 0.5. These videos have no hand labels, so the counts include the occasional false positive. Raw numbers are in [`results/video_eval.csv`](results/video_eval.csv). To reproduce on your own clips: `python evaluate.py --videos your_folder/`.
 
-## How it works
+</details>
+
+**Validation set:** precision 0.930 · recall 0.849 · **mAP@50 0.918** · mAP@50-95 0.674 (YOLO11m, 640 px, best of 556 epochs).
+
+I treat that number as an upper bound, not a headline. The dataset is frames from swing videos split at random, and 91% of validation frames have a near-identical neighbour within 2 frames in the training set. That's why the unseen-video test above exists.
+
+<details>
+<summary>Training curves</summary>
+
+![Training curves](assets/training_curves.png)
+
+About 48 hours on a laptop RTX 4060 (8 GB): batch 2, mixed precision, early stopping with patience 100. Full history in [`results/training_history.json`](results/training_history.json).
+
+</details>
+
+## 🧠 How it works
 
 ```
 video ──► YOLO11m (shaft / head / hands) ──► per-frame boxes
@@ -62,88 +107,69 @@ video ──► YOLO11m (shaft / head / hands) ──► per-frame boxes
                                                 ▼
                          moving-average smoothing (5 frames)
                                                 ▼
-                         swing path drawn on the video
+                         club path drawn on the video
 ```
 
-1. **Detection.** I fine-tuned YOLO11m on the open [golf-club-tracking dataset](https://universe.roboflow.com/club-head-tracking/golf-club-tracking) (CC BY 4.0, by the club-head-tracking workspace on Roboflow Universe), with three classes: shaft, club head and hands. Early YOLOv8n runs on a MacBook (Apple MPS, a few epochs each) topped out around 0.53 mAP@50. Moving to YOLO11m on a GPU and training much longer is what got it to 0.92.
-2. **Recovering missed heads.** The club head is small and moves fastest at the top of the backswing and through impact, so that's where it drops out. The shaft is longer and easier to see. When the head is missing but the shaft is detected, the head is estimated as the corner of the shaft box closest to the head's last known position.
-3. **Gap filling and smoothing.** The remaining gaps are filled with a cubic spline over frame index, then smoothed with a centered moving average, so the result is one continuous swing path.
-4. **Two ways to run it.** Use the local weights through Ultralytics, or call the same model deployed as a hosted Roboflow workflow. The original scripts used the hosted Roboflow workflow.
+1. **Detect.** A YOLO11m fine-tuned on the open [golf-club-tracking dataset](https://universe.roboflow.com/club-head-tracking/golf-club-tracking) (CC BY 4.0) finds the shaft, club head and hands.
+2. **Recover.** The head is small and moves fastest at the top and at impact, so that's where detection drops out. The shaft is bigger and easier to see. When only the shaft is found, the head is placed at the corner of the shaft box closest to where the head was last seen.
+3. **Fill and smooth.** A cubic spline bridges the remaining gaps, and a moving average smooths the result into one continuous path.
 
-## Quick start
+## 🛠️ More
+
+<details>
+<summary>Run from a clone, hosted model, retraining, demo GIFs</summary>
 
 ```bash
-git clone https://github.com/nishsm/golf-club-tracking.git
-cd golf-club-tracking
-pip install -r requirements.txt
-
-# boxes + swing path, using the included weights (CPU, CUDA, or --device mps on Apple silicon)
-python track.py --video path/to/swing.mp4
-
-# raw detections (yellow) vs the interpolated + smoothed path (green)
-python track.py --video path/to/swing.mp4 --mode compare
-
-# just the boxes
-python track.py --video path/to/swing.mp4 --mode boxes
-
-# just the path
-python track.py --video path/to/swing.mp4 --mode path
+git clone https://github.com/nishsm/swingtrace.git && cd swingtrace
+pip install -e ".[dev]"
+pytest                                     # trajectory unit tests
+python evaluate.py --videos path/to/swings # per-video coverage report
 ```
 
-To compare all 4 modes side by side in one GIF (needs `ffmpeg`, any build):
+**Hosted model (Roboflow):** `pip install "swingtrace[roboflow]"`, set `ROBOFLOW_API_KEY`, then `swingtrace swing.mp4 --backend roboflow`.
 
+**Retrain:** export the dataset from Roboflow in YOLOv11 format into `data/`, then `python train.py --data data/data.yaml --device 0`.
+
+**Make the 2×2 demo GIF** (needs ffmpeg):
 ```bash
-for m in boxes path both compare; do python track.py --video swing.mp4 --mode $m; done
+swingtrace swing.mp4 --mode all
 python scripts/make_grid.py out/swing assets/modes_grid.gif
 ```
 
-Output goes to `out/<video>_<mode>.mp4`, and the script prints how many frames had a direct head detection and how many were filled in from the shaft.
-
-**Hosted model (Roboflow):**
-
-```bash
-pip install inference
-cp .env.example .env   # add your key
-export ROBOFLOW_API_KEY=...
-python track.py --video path/to/swing.mp4 --backend roboflow
+**Layout**
+```
+src/swingtrace/   package: detect.py, trajectory.py, render.py, cli.py, weights.py
+evaluate.py       per-video coverage on unseen swings
+train.py          YOLO11 fine-tuning with the settings used for the released weights
+scripts/          make_grid.py (demo GIF)
+notebooks/        Colab quickstart
+hf/               Hugging Face model card and Space app
+tests/            pytest
 ```
 
-**Retrain:** export the dataset from Roboflow in YOLOv11 format into `data/`, then run:
+</details>
 
-```bash
-python train.py --data data/data.yaml --device 0
-```
+## 🗺️ Roadmap
 
-## Repo layout
+- [ ] Cut the path off when the swing ends, instead of tracing the walk-off
+- [ ] Swing metrics from the path: tempo, swing plane, club speed estimate
+- [ ] Live tracking with a Kalman filter in place of offline splines
+- [ ] ONNX / CoreML export for on-phone use
+- [ ] Ball tracking (see [golf-ball-tracking](https://github.com/nishsm/golf-ball-tracking))
 
-```
-track.py                  CLI: detect, reconstruct and draw the swing path
-scripts/make_grid.py      2x2 GIF of all four modes
-evaluate.py               per-video detection coverage on unseen swings
-train.py                  YOLO11 fine-tuning with the settings used for best.pt
-src/golfclub/detect.py    local (Ultralytics) and Roboflow detection backends
-src/golfclub/trajectory.py  shaft-based head estimate, spline gap fill, smoothing
-tests/                    unit tests for the trajectory logic (pytest)
-weights/best.pt           trained YOLO11m weights (40 MB)
-results/                  training history and final metrics
-```
+## ⚠️ Limitations
 
-## Limitations and next steps
+- Built for one golfer and one swing per clip, from a static camera. Moving cameras and multiple people haven't been tested.
+- The shaft-corner estimate breaks down when the shaft is close to vertical or horizontal.
+- All frames are held in memory for the drawing pass. That's fine for swing clips, but not for long videos.
 
-- Works on one swing per clip, filmed by a single static phone camera. Moving cameras and multiple golfers in frame haven't been tested.
-- The shaft-corner estimate assumes the shaft runs corner to corner across its box. It breaks down when the shaft is close to vertical or horizontal.
-- The local backend keeps every frame in memory for a second drawing pass. That's fine for a few-second swing clip, but not for long videos.
-- Next steps: a motion model such as a Kalman filter in place of offline splines so the path can be drawn live, and swing metrics (plane, tempo) computed from the path.
-
-## Tech
-
-Python, Ultralytics YOLO11, PyTorch, OpenCV, SciPy, Roboflow (labeling, hosted inference).
-
-## Credits
+## 🙌 Credits
 
 - Dataset: [golf-club-tracking](https://universe.roboflow.com/club-head-tracking/golf-club-tracking) by club-head-tracking on Roboflow Universe, CC BY 4.0.
 - Base model: [Ultralytics YOLO11](https://github.com/ultralytics/ultralytics).
 
+If SwingTrace is useful to you, a ⭐ helps other people find it. Issues and PRs are welcome, especially clips where it fails.
+
 ## License
 
-Ultralytics YOLO is AGPL-3.0, and these weights are fine-tuned from it, so this repo is released under AGPL-3.0 as well.
+AGPL-3.0, following Ultralytics YOLO, which the weights are fine-tuned from.

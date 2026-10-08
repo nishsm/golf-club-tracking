@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from golfclub.trajectory import (  # noqa: E402
+from swingtrace.trajectory import (  # noqa: E402
     bbox_center,
     fill_head_from_shaft,
     interpolate_gaps,
