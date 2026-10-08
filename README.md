@@ -4,7 +4,10 @@ Detects the golf club shaft, club head and hands in swing videos and draws the c
 
 An open-source project I built to analyse golf swings from ordinary phone video. Free to use: weights, code and evaluation are all here.
 
-<!-- DEMO: add GIFs made from openly licensed swing videos (see assets/README.md) -->
+<p align="center">
+  <img src="assets/modes_grid.gif" width="420" alt="The four output modes on one swing: boxes, path, both, compare">
+</p>
+<p align="center"><sub>One swing, four modes: <b>boxes</b> (shaft, head, hands) · <b>path</b> (reconstructed club-head path) · <b>both</b> · <b>compare</b> (raw detections in yellow vs smoothed path in green). Face blurred for privacy.</sub></p>
 
 ## Results
 
@@ -87,11 +90,11 @@ python track.py --video path/to/swing.mp4 --mode boxes
 python track.py --video path/to/swing.mp4 --mode path
 ```
 
-To compare all 4 modes side by side in one GIF (needs `ffmpeg`):
+To compare all 4 modes side by side in one GIF (needs `ffmpeg`, any build):
 
 ```bash
 for m in boxes path both compare; do python track.py --video swing.mp4 --mode $m; done
-scripts/make_grid.sh out/swing assets/modes_grid.gif
+python scripts/make_grid.py out/swing assets/modes_grid.gif
 ```
 
 Output goes to `out/<video>_<mode>.mp4`, and the script prints how many frames had a direct head detection and how many were filled in from the shaft.
@@ -115,7 +118,7 @@ python train.py --data data/data.yaml --device 0
 
 ```
 track.py                  CLI: detect, reconstruct and draw the swing path
-scripts/make_grid.sh      2x2 GIF of all four modes
+scripts/make_grid.py      2x2 GIF of all four modes
 evaluate.py               per-video detection coverage on unseen swings
 train.py                  YOLO11 fine-tuning with the settings used for best.pt
 src/golfclub/detect.py    local (Ultralytics) and Roboflow detection backends

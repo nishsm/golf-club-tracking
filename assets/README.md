@@ -1,7 +1,7 @@
 # Demo media
 
-Every demo GIF here is made from openly licensed footage (Pexels or Pixabay license), traced with `track.py`.
+Demo GIFs are traced with `track.py` and combined with `scripts/make_grid.py`. Faces of people in the footage are blurred.
 
 | File | Source video | Author | License |
 |---|---|---|---|
-| | | | |
+| modes_grid.gif | Public Instagram swing clip | Not credited (face blurred) | Used as a demo; will be replaced by openly licensed footage |
