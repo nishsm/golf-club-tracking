@@ -87,6 +87,13 @@ python track.py --video path/to/swing.mp4 --mode boxes
 python track.py --video path/to/swing.mp4 --mode path
 ```
 
+To compare all 4 modes side by side in one GIF (needs `ffmpeg`):
+
+```bash
+for m in boxes path both compare; do python track.py --video swing.mp4 --mode $m; done
+scripts/make_grid.sh out/swing assets/modes_grid.gif
+```
+
 Output goes to `out/<video>_<mode>.mp4`, and the script prints how many frames had a direct head detection and how many were filled in from the shaft.
 
 **Hosted model (Roboflow):**
@@ -108,6 +115,7 @@ python train.py --data data/data.yaml --device 0
 
 ```
 track.py                  CLI: detect, reconstruct and draw the swing path
+scripts/make_grid.sh      2x2 GIF of all four modes
 evaluate.py               per-video detection coverage on unseen swings
 train.py                  YOLO11 fine-tuning with the settings used for best.pt
 src/golfclub/detect.py    local (Ultralytics) and Roboflow detection backends
