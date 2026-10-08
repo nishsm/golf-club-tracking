@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*env/
+.env
+.DS_Store
+out/
+runs/
+data/
+*.mp4
+*.MP4
+*.mov
+yolo11*.pt
+yolov8*.pt
