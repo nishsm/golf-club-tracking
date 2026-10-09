@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-HF_REPO = os.environ.get("SWINGTRACE_HF_REPO", "nishsm/swingtrace")
+HF_REPO = os.environ.get("SWINGTRACE_HF_REPO", "nishsm/golf-club-detection-swingtrace")
 HF_FILE = "swingtrace-yolo11m.pt"
 LOCAL_CANDIDATES = ["weights/best.pt", "weights/swingtrace-yolo11m.pt"]
 

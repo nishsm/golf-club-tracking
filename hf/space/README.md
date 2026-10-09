@@ -9,7 +9,7 @@ pinned: true
 license: agpl-3.0
 short_description: Trace the club path of any golf swing from phone video
 models:
-  - nishsm/swingtrace
+  - nishsm/golf-club-detection-swingtrace
 tags:
   - golf
   - sports
@@ -19,4 +19,4 @@ tags:
 
 # ⛳ SwingTrace demo
 
-Upload a golf swing and get the club-head path back. Code: [github.com/nishsm/swingtrace](https://github.com/nishsm/swingtrace) · Model: [nishsm/swingtrace](https://huggingface.co/nishsm/swingtrace)
+Upload a golf swing and get the club-head path back. Code: [github.com/nishsm/golf-club-detection-swingtrace](https://github.com/nishsm/golf-club-detection-swingtrace) · Model: [nishsm/golf-club-detection-swingtrace](https://huggingface.co/nishsm/golf-club-detection-swingtrace)

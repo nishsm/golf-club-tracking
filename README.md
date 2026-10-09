@@ -3,16 +3,24 @@
 <p align="center"><b>Open-source golf swing tracer. Drop in any phone video, get the club path.</b></p>
 
 <p align="center">
-  <a href="https://huggingface.co/nishsm/swingtrace"><img src="https://img.shields.io/badge/🤗%20Model-YOLO11m-orange" alt="Model on Hugging Face"></a>
-  <a href="https://colab.research.google.com/github/nishsm/swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a>
+  <a href="https://huggingface.co/nishsm/golf-club-detection-swingtrace"><img src="https://img.shields.io/badge/🤗%20Model-YOLO11m-orange" alt="Model on Hugging Face"></a>
+  <a href="https://colab.research.google.com/github/nishsm/golf-club-detection-swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a>
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0">
   <img src="https://img.shields.io/badge/python-3.9%2B-informational" alt="Python 3.9+">
 </p>
 
 <p align="center">
-  <img src="assets/modes_grid.gif" width="440" alt="The four output modes on one swing: boxes, path, both, compare">
+  <img src="assets/boxes_vs_path.gif" width="520" alt="Same swing: detections on the left, reconstructed club path on the right">
 </p>
-<p align="center"><sub><b>boxes</b> shaft, head and hands · <b>path</b> reconstructed club-head path · <b>both</b> · <b>compare</b> raw detections (yellow) vs smoothed path (green). Face blurred for privacy.</sub></p>
+<p align="center"><sub>Same swing, two views. <b>Left:</b> what the model detects (shaft, head, hands). <b>Right:</b> the club-head path rebuilt from those detections. Face blurred for privacy.</sub></p>
+
+<details>
+<summary><b>See what the reconstruction adds</b></summary>
+<p align="center">
+  <img src="assets/compare.gif" width="300" alt="Raw detections (yellow) vs smoothed club path (green)">
+</p>
+<p align="center"><sub>Raw per-frame detections (yellow) vs the smoothed, gap-filled path (green).</sub></p>
+</details>
 
 SwingTrace finds the **club shaft, club head and hands** in every frame and rebuilds the **club-head path through the whole swing**, including the top of the backswing and impact, where the head turns into a blur and normal detectors lose it.
 
@@ -23,17 +31,17 @@ SwingTrace finds the **club shaft, club head and hands** in every frame and rebu
 
 ## 🚀 Try it in 10 seconds
 
-**In your browser:** open the [Colab notebook](https://colab.research.google.com/github/nishsm/swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb), upload a swing, press run. Free GPU, nothing to install.
+**In your browser:** open the [Colab notebook](https://colab.research.google.com/github/nishsm/golf-club-detection-swingtrace/blob/main/notebooks/swingtrace_quickstart.ipynb), upload a swing, press run. Free GPU, nothing to install.
 
 **On your machine:**
 
 ```bash
-pip install git+https://github.com/nishsm/swingtrace.git
+pip install git+https://github.com/nishsm/golf-club-detection-swingtrace.git
 swingtrace my_swing.mp4                # boxes + club path → out/my_swing_both.mp4
 swingtrace my_swing.mp4 --mode all     # all four modes
 ```
 
-The model weights (40 MB) download automatically from [Hugging Face](https://huggingface.co/nishsm/swingtrace) the first time you run it.
+The model weights (40 MB) download automatically from [Hugging Face](https://huggingface.co/nishsm/golf-club-detection-swingtrace) the first time you run it.
 
 **From Python:**
 
@@ -119,7 +127,7 @@ video ──► YOLO11m (shaft / head / hands) ──► per-frame boxes
 <summary>Run from a clone, hosted model, retraining, demo GIFs</summary>
 
 ```bash
-git clone https://github.com/nishsm/swingtrace.git && cd swingtrace
+git clone https://github.com/nishsm/golf-club-detection-swingtrace.git && cd golf-club-detection-swingtrace
 pip install -e ".[dev]"
 pytest                                     # trajectory unit tests
 python evaluate.py --videos path/to/swings # per-video coverage report
@@ -129,10 +137,11 @@ python evaluate.py --videos path/to/swings # per-video coverage report
 
 **Retrain:** export the dataset from Roboflow in YOLOv11 format into `data/`, then `python train.py --data data/data.yaml --device 0`.
 
-**Make the 2×2 demo GIF** (needs ffmpeg):
+**Make the demo GIFs** (needs ffmpeg):
 ```bash
 swingtrace swing.mp4 --mode all
-python scripts/make_grid.py out/swing assets/modes_grid.gif
+python scripts/make_gif.py out/swing boxes path assets/boxes_vs_path.gif   # side by side
+python scripts/make_gif.py out/swing compare assets/compare.gif --width 300
 ```
 
 **Layout**

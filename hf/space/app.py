@@ -52,7 +52,7 @@ with gr.Blocks(title="SwingTrace") as demo:
         "Upload a golf swing filmed on a phone. SwingTrace finds the club shaft, head and hands "
         "and draws the club-head path through the whole swing. "
         f"The first {MAX_SECONDS} seconds are processed on a free CPU, so give it about a minute.\n\n"
-        "[GitHub](https://github.com/nishsm/swingtrace) · [Model](https://huggingface.co/nishsm/swingtrace)"
+        "[GitHub](https://github.com/nishsm/golf-club-detection-swingtrace) · [Model](https://huggingface.co/nishsm/golf-club-detection-swingtrace)"
     )
     with gr.Row():
         with gr.Column():

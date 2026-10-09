@@ -32,8 +32,8 @@ dev = ["pytest"]
 swingtrace = "swingtrace.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/nishsm/swingtrace"
-"Model" = "https://huggingface.co/nishsm/swingtrace"
+Homepage = "https://github.com/nishsm/golf-club-detection-swingtrace"
+"Model" = "https://huggingface.co/nishsm/golf-club-detection-swingtrace"
 
 [tool.setuptools.packages.find]
 where = ["src"]
